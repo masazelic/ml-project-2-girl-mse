@@ -10,6 +10,15 @@ which is in our case the Chain A of OFF conformation of the EL222 protein.
 """
 from main_tools import *
 import os
+import re
+
+def extract_number_from_filename(filename):
+    match = re.search(r'\d+', filename)  # Matches one or more digits in the filename
+    if match:
+        return int(match.group())  # Extracts the matched number as an integer
+    else:
+        return None  # Return None if no number is found in the filename
+
 
 #Looks like things before 25 are missing from the chain A
 
@@ -29,8 +38,8 @@ def align_structures(AF_file, original_pdb_file, choose_contigs, mutation = None
         contigs = "A25-141/A149-164"
         contigs_for_predictions = "A12-128/A136-151"
     elif choose_contigs == "without low-confidenceLOV":
-        contigs = "A25-133"
-        contigs_for_predictions = "A12-120"
+        contigs = "A25-138"
+        contigs_for_predictions = "A12-125"
     else:
         contigs = ...
         contigs_for_predictions = ...
@@ -86,7 +95,7 @@ def run_alignments_on_subfolders(parent_folder, original_pdb_file, choose_contig
     list_sequences = []
     #Each structure should be in a subfolder
     subfolder_files = {}
-
+    cluster_ids = []
     # Get a list of subfolders
     subfolders = [name for name in os.listdir(parent_folder) if os.path.isdir(os.path.join(parent_folder, name))]
 
@@ -111,6 +120,8 @@ def run_alignments_on_subfolders(parent_folder, original_pdb_file, choose_contig
             if pdb_file == None:
                 raise ValueError(f"Error: Subfolder {subfolder} does not contain any .pdb file.")
             else:
+                # Extracting the cluster number from the pdb file name
+                cluster_ids.append(num_of_cluster)
                 rmsd, mean_conf_AF, confidence_scores, matched_ids, sequence_predictions = align_structures(pdb_file, original_pdb_file, choose_contigs)
                 list_rmsd.append(rmsd)
                 list_scores.append(confidence_scores)
@@ -120,4 +131,4 @@ def run_alignments_on_subfolders(parent_folder, original_pdb_file, choose_contig
         except ValueError as error:
             print(error)
     
-    return list_scores, list_matched_ids, list_rmsd, list_sequences
+    return list_scores, list_matched_ids, list_rmsd, list_sequences, cluster_ids
