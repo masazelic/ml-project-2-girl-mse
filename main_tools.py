@@ -248,27 +248,23 @@ def CompareTwoPDBs(contigs, contigs_for_preds, ref_pdb_file, mov_pdb_file):
 
     res_table1 = extract_residues_from_PDB(ref_pdb_file)
     contigs_as_list_of_strings = extract_contig_from_residue_table(res_table1,contigs)[2]
-    #print(contigs_as_list_of_strings[1])
-    print(len(contigs_as_list_of_strings[0]))
     all_matching_positions_resIDs1 = index_contigs_in_generated_sequence(res_table1, contigs_as_list_of_strings)[2]
 
     res_table2 = extract_residues_from_PDB(mov_pdb_file)
     contigs_as_list_of_strings_predictions = extract_contig_from_residue_table(res_table2, contigs_for_preds)[2]
-    #print(contigs_as_list_of_strings_predictions[1])
-    print(len(contigs_as_list_of_strings_predictions[0]))
+    
+    sequence_predictions = ''
+    for i in range(0, len(sequence_predictions)+1):
+        sequence_predictions =  sequence_predictions + contigs_as_list_of_strings_predictions[i]
+        
+    
     all_matching_positions_resIDs2 = index_contigs_in_generated_sequence(res_table2, contigs_as_list_of_strings_predictions)[2]
     confidences_of_residues = index_contigs_in_generated_sequence(res_table2, contigs_as_list_of_strings_predictions)[3]
-    #print('indexes')
-    #print(all_matching_positions_resIDs2)
-    #print(len(all_matching_positions_resIDs2))
-    #print('confidences')
-    #print(confidences_of_residues)
-    #print(len(confidences_of_residues))
 
     # Perform rigid alignment and compute RMSD
     rotated_coords, rmsd = rigid_alignment(ref_pdb_file, mov_pdb_file, all_matching_positions_resIDs1, all_matching_positions_resIDs2)
 
     ## Update the coordinates in the mobile PDB file
     update_pdb_coordinates(mov_pdb_file.split('.pdb')[0] + '_sorted.pdb', mov_pdb_file.split('.pdb')[0] + '_sorted-aligned.pdb', rotated_coords)
-    return rmsd, sum(confidences_of_residues)/len(confidences_of_residues), min(confidences_of_residues), max(confidences_of_residues), confidences_of_residues, all_matching_positions_resIDs2
+    return rmsd, sum(confidences_of_residues)/len(confidences_of_residues), min(confidences_of_residues), max(confidences_of_residues), confidences_of_residues, all_matching_positions_resIDs2, sequence_predictions
 

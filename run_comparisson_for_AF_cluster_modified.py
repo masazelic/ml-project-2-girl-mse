@@ -18,15 +18,23 @@ import os
 
 #Unresolved are A1-24 and A142-148 based on: https://www.rcsb.org/3d-view/3P7N
 #make sure that your numbes for annotations are matching these
-def align_structures(AF_file, original_pdb_file, mutation = None):
+def align_structures(AF_file, original_pdb_file, choose_contigs, mutation = None):
 
-    #contig notation includes both limits intersected with the LOV domain we are interested in
-
-    contigs = "A25-133" #For some reason if you include 222th then it's not working although both files contain it. I'll just skip it
-    contigs_for_predictions = "A12-120"
-    #contigs = "A25-130"
-    #contigs_for_predictions = "A12-117"
-    
+     #contig notation includes both limits intersected with the LOV domain we are interested in
+     #For some reason if you include 222th then it's not working although both files contain it. I'll just skip it
+    if choose_contigs == "whole_protein":
+        contigs = "A25-141/A149-221" # excluded because of unresolved technical limitiations
+        contigs_for_predictions = "A25-141/A149-221"
+    elif choose_contigs == "with low-confidenceLOV":
+        contigs = "A25-141/A149-164"
+        contigs_for_predictions = "A12-128/A136-151"
+    elif choose_contigs == "without low-confidenceLOV":
+        contigs = "A25-133"
+        contigs_for_predictions = "A12-120"
+    else:
+        contigs = ...
+        contigs_for_predictions = ...
+        
     """
     if(mutation > 25 and mutation < 141):
         contigs = "A25-"+str(mutation-1)+"/A"+str(mutation+1)+"-141/A149-221"
@@ -39,10 +47,10 @@ def align_structures(AF_file, original_pdb_file, mutation = None):
     #print(contigs)
     """
 
-    rmsd, mean_conf_AF, min_conf_AF, max_conf_AF, confidence_scores, matched_ids = CompareTwoPDBs(contigs, contigs_for_predictions, original_pdb_file, AF_file)
+    rmsd, mean_conf_AF, min_conf_AF, max_conf_AF, confidence_scores, matched_ids, sequence_predictions = CompareTwoPDBs(contigs, contigs_for_predictions, original_pdb_file, AF_file)
     print(f"RMSD: {rmsd:.3f}")
     print(f"Mean confindence AF: {mean_conf_AF:.3f}")
-    return rmsd, mean_conf_AF, confidence_scores, matched_ids
+    return rmsd, mean_conf_AF, confidence_scores, matched_ids, sequence_predictions
 
 
 def extract_number_from_folder_name(folder_name):
@@ -59,7 +67,7 @@ def extract_number_from_folder_name(folder_name):
     return int(number)
 
 
-def run_alignments_on_subfolders(parent_folder, original_pdb_file):
+def run_alignments_on_subfolders(parent_folder, original_pdb_file, choose_contigs):
     """
     Load file from subfolders that contain AF structure predictions in order to perform its comparison
     with the ground truth structure.
@@ -74,6 +82,8 @@ def run_alignments_on_subfolders(parent_folder, original_pdb_file):
     #Collect all of the cofidence scores
     list_scores = []
     list_matched_ids = []
+    list_rmsd = []
+    list_sequences = []
     #Each structure should be in a subfolder
     subfolder_files = {}
 
@@ -101,11 +111,13 @@ def run_alignments_on_subfolders(parent_folder, original_pdb_file):
             if pdb_file == None:
                 raise ValueError(f"Error: Subfolder {subfolder} does not contain any .pdb file.")
             else:
-                rmsd, mean_conf_AF, confidence_scores, matched_ids = align_structures(pdb_file, original_pdb_file)
+                rmsd, mean_conf_AF, confidence_scores, matched_ids, sequence_predictions = align_structures(pdb_file, original_pdb_file, choose_contigs)
+                list_rmsd.append(rmsd)
                 list_scores.append(confidence_scores)
                 list_matched_ids.append(matched_ids)
+                list_sequences.append(sequence_predictions)
         
         except ValueError as error:
             print(error)
     
-    return list_scores, list_matched_ids
+    return list_scores, list_matched_ids, list_rmsd, list_sequences
