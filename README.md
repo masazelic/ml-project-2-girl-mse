@@ -32,6 +32,13 @@ To obtain Alpha Fold structure prediction for each of cluster (from their respec
 The code corresponding to this part of the project is located in the *rmsd_calculation* folder.  
 To compare the obtained Alpha Fold structures (.pdb files) to the ground-truth EL222 OFF structure ("EL222_chain_A.pdb"), you should place the files in a folder within the same folder as the notebook "comparison.ipynb"  and follow the steps in the notebook, that is run the code cell by cell. Change the variables parent_folder_path and original_pdb_file to correspond to your paths to the folder containing structures'.pdb' files and the original chain structure. "main_tools.py" and "run_comparisson_for_AF_cluster_modified.py" are auxiliary files containing functions used in the notebook.  
 
+## Classification of the protein sequences using XGBoost
+
+You can find the code for this part of the project in *XGBoost* folder. The sequences used for training and testing, that were found by using the procedure explained in the previous section, can be found within the data folder, specifically:
+- off_sequences.txt and on_sequences.txt files that contain consensus sequences belonging to OFF cluster (37 in total) and ON cluster (81 in total).
+
+To reproduce the reported results, the folder structure provided should be perserved. The model was implemented in the xgboost_training.ipynb file, and can be reproduced by running the notebook. 
+
 ## Classification of the protein sequences using BERT fine-tuned model and fully-connected classifier   
 
 You can find the code for this part of the project in *BERT classifier* folder. Resulting sequences obtained by following the procedure explained in the previous section, can be found within the data folder, specifically:  
@@ -48,4 +55,4 @@ For the coarser grid search, refer to the section commented with Grid search par
 bash
 python run.py
   
-Regrading the .ipynb Notebook, it is inteded for running on the Google Colab, since it requires GPU's for the
+Regrading the .ipynb Notebook, it is inteded for running on the Google Colab, since it requires GPU's for the faster execution. For this purpose, upload *data* and *utils* folders to your Google Drive and then just run the cells.
