@@ -20,7 +20,7 @@ Efficient exploration of the protein fitness landscape can be crucial for findin
 # Project pipeline
 
 For better understanding of the steps this project consists of, refer to the flowchart below.
-![Project pipeline](Project pipeline.png)
+![Project pipeline](relative%20path/to/Project%pipeline.png?raw=true "Title")
 
 ## Alpha Fold cluster
 
